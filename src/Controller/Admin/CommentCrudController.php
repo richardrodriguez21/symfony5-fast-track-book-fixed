@@ -5,17 +5,35 @@ namespace App\Controller\Admin;
 use App\Entity\Comment;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
+use EasyCorp\Bundle\EasyAdminBundle\Factory\FormFactory;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\File\File;
 
 class CommentCrudController extends AbstractCrudController
 {
-    public static function getEntityFqcn(): string
+    private $photoDir;
+
+  /**
+   * CommentCrudController constructor.
+   *
+   * @param $photosDir
+   */
+  public function __construct(string $photoDir) {
+    $this->photoDir = $photoDir;
+  }
+
+
+  public static function getEntityFqcn(): string
     {
         return Comment::class;
     }
@@ -41,16 +59,16 @@ class CommentCrudController extends AbstractCrudController
       $email = EmailField::new('email');
       $createdAt = DateTimeField::new('createdAt')->setSortable(true);
       $text = TextareaField::new('text');
-
+      $photoFilename = ImageField::new('photoFilename', 'Photo')->setBasePath('/uploads/photos');
 
       if (Crud::PAGE_INDEX === $pageName) {
-        return [$author, $email, $createdAt->setFormat('short', 'short')];
+        return [$author, $email, $photoFilename, $createdAt->setFormat('short', 'short')];
       }
 
       if(Crud::PAGE_EDIT === $pageName || Crud::PAGE_NEW || Crud::PAGE_DETAIL ){
         $conference = AssociationField::new('conference');
 //        $createdAt->setFormTypeOption('attr', ['readonly' => true]);
-        return [$conference, $createdAt, $author, $email, $text ];
+        return [$conference, $createdAt, $author, $email, $text];
       }
 
       $fields =  parent::configureFields($pageName);
@@ -59,5 +77,9 @@ class CommentCrudController extends AbstractCrudController
 
 
     }
+
+
+
+
 
 }
