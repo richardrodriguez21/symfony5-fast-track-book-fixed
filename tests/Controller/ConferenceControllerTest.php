@@ -3,8 +3,10 @@
 namespace App\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Panther\PantherTestCase;
 
-class ConferenceControllerTest extends WebTestCase {
+//class ConferenceControllerTest extends WebTestCase {
+class ConferenceControllerTest extends PantherTestCase {
 
   public function testIndex() {
     $client = static::createClient();
@@ -14,25 +16,30 @@ class ConferenceControllerTest extends WebTestCase {
   }
 
 
-
   public function testCommentSubmission() {
-    $client = static::createClient();
-    $client->request('GET', '/conference/amsterdam-2019');
-    $client->submitForm('Submit', [
-      'comment_form[author]' => 'Fabien',
-      'comment_form[text]' => 'Some feedback from an automated
-functional test',
-      'comment_form[email]' => 'me@automat.ed',
-      'comment_form[photo]' => dirname(__DIR__, 2) . '/public/images/underconstruction.
-gif',
+    //    $client = static::createClient();
+    //
+    $client = static::createPantherClient([
+      'external_base_uri' =>
+        'https://127.0.0.1:8000/',
     ]);
-    $this->assertResponseRedirects();
-    $client->followRedirect();
-    $this->assertSelectorExists('div:contains("There are 2 comments")');
+   $client->request('GET', 'conference/amsterdam-2019');
+    $client->submitForm('comment_form_submit', [
+      'comment_form[author]' => 'Fabien',
+      'comment_form[text]' => 'Some feedback from an automated functional test',
+      'comment_form[email]' => 'me@automat.ed',
+      'comment_form[photo]' => dirname(__DIR__, 2) . '/public/images/underconstruction.gif',
+    ]);
+
+    $this->assertSelectorTextContains('div', 'There are 2 comments');
+
   }
 
   public function testConferencePage() {
-    $client = static::createClient();
+    $client =   $client = static::createPantherClient([
+      'external_base_uri' =>
+        'https://127.0.0.1:8000/',
+    ]);
     $crawler = $client->request('GET', '/');
 
     $this->assertCount(2, $crawler->filter('h4'));
