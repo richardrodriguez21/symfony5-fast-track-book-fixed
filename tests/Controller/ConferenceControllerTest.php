@@ -2,6 +2,8 @@
 
 namespace App\Tests\Controller;
 
+use App\Repository\CommentRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Panther\PantherTestCase;
 
@@ -23,20 +25,27 @@ class ConferenceControllerTest extends PantherTestCase {
       'external_base_uri' =>
         'https://127.0.0.1:8000/',
     ]);
-   $client->request('GET', 'conference/amsterdam-2019');
+    $client->request('GET', 'conference/amsterdam-2019');
     $client->submitForm('comment_form_submit', [
       'comment_form[author]' => 'Fabien',
       'comment_form[text]' => 'Some feedback from an automated functional test',
-      'comment_form[email]' => 'me@automat.ed',
+      'comment_form[email]' => $email = 'me@automat.ed',
       'comment_form[photo]' => dirname(__DIR__, 2) . '/public/images/underconstruction.gif',
     ]);
 
-    $this->assertSelectorTextContains('div', 'There are 2 comments');
+    // simulate comment validation
+    /** @var \App\Entity\Comment $comment */
+    $comment = self::$container->get(CommentRepository::class)
+      ->findOneByEmail($email);
+    $comment->setState('published');
+    self::$container->get(EntityManagerInterface::class)->flush();
+
+    $this->assertSelectorTextContains('div', 'There are 3 comments');
 
   }
 
   public function testConferencePage() {
-    $client =   $client = static::createPantherClient([
+    $client = $client = static::createPantherClient([
       'external_base_uri' =>
         'https://127.0.0.1:8000/',
     ]);
@@ -50,6 +59,6 @@ class ConferenceControllerTest extends PantherTestCase {
     $this->assertPageTitleContains('Amsterdam');
     $client->wait(1);
     $this->assertSelectorTextContains('h2', 'Amsterdam 2019');
-//    $this->assertSelectorTextContains('div', 'There are 1 comments');
+    //    $this->assertSelectorTextContains('div', 'There are 1 comments');
   }
 }
