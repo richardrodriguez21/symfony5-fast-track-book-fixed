@@ -12,8 +12,8 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Comment|null find($id, $lockMode = NULL, $lockVersion = NULL)
  * @method Comment|null findOneBy(array $criteria, array $orderBy = NULL)
  * @method Comment[]    findAll()
- * @method Comment[]    findBy(array $criteria, array $orderBy = NULL, $limit =
- *   NULL, $offset = NULL)
+ * @method Comment[]    findBy(array $criteria, array $orderBy = NULL, $limit = NULL, $offset = NULL)
+ *
  */
 class CommentRepository extends ServiceEntityRepository {
 
