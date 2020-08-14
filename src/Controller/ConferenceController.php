@@ -45,6 +45,18 @@ class ConferenceController extends AbstractController {
   public function show(Request $request, Conference $conference, CommentRepository $commentRepository, ConferenceRepository $conferenceRepository, string $photoDir) {
 
 
+    // Temporal
+//    $comment = new Comment();
+//    $comment->setAuthor('me');
+//    $comment->setText('hello mail');
+//    $this->container->get('mailer')->mailer->send((new NotificationEmail())
+//      ->subject('New comment posted')
+//      ->htmlTemplate('emails/comment_notification.html.twig')
+//      ->from($this->adminEmail)
+//      ->to($this->adminEmail)
+//      ->context(['comment' => $comment])
+//    );
+
     $comment = new Comment();
     $form = $this->createForm(CommentFormType::class, $comment);
     $form->handleRequest($request);
